@@ -1,7 +1,7 @@
 <!--
 name: 'Data: Live documentation sources'
 description: WebFetch URLs for fetching current Claude API and Agent SDK documentation from official sources
-ccVersion: 2.1.91
+ccVersion: 2.1.97
 -->
 # 实时文档来源
 
@@ -19,7 +19,7 @@ ccVersion: 2.1.91
 ### 模型与定价
 
 | 主题           | URL                                                                   | 提取提示                                                               |
-| --------------- | --------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| --------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
 | 模型概览 | `https://platform.claude.com/docs/en/about-claude/models/overview.md` | "Extract current model IDs, context windows, and pricing for all Claude models" |
 | 定价         | `https://platform.claude.com/docs/en/pricing.md`                      | "Extract current pricing per million tokens for input and output"               |
 
@@ -74,53 +74,56 @@ ccVersion: 2.1.91
 | 引用          | `https://platform.claude.com/docs/en/build-with-claude/citations.md`          | "Extract citation format and implementation"        |
 | 上下文窗口    | `https://platform.claude.com/docs/en/build-with-claude/context-windows.md`    | "Extract context window sizes and token management" |
 
+### 托管代理
+
+当缓存的 `shared/managed-agents-*.md` 概念文件或 `{lang}/managed-agents/README.md` 中没有覆盖某个托管代理的绑定、行为或线路级细节时，请使用以下 URL。
+
+| 主题                 | URL                                                                              | 提取提示                                                                               |
+| --------------------- | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| 概览              | `https://platform.claude.com/docs/en/managed-agents/overview.md`                 | "Extract the high-level architecture and how agents/sessions/environments/vaults fit together" |
+| 快速入门            | `https://platform.claude.com/docs/en/managed-agents/quickstart.md`               | "Extract the minimal end-to-end agent → environment → session → stream code path"              |
+| 代理设置           | `https://platform.claude.com/docs/en/managed-agents/agent-setup.md`              | "Extract agent create/update/list-versions/archive lifecycle and parameters"                   |
+| 定义结果       | `https://platform.claude.com/docs/en/managed-agents/define-outcomes.md`          | "Extract outcome definitions, evaluation hooks, and success criteria configuration"             |
+| 会话              | `https://platform.claude.com/docs/en/managed-agents/sessions.md`                 | "Extract session lifecycle, status transitions, idle/terminated semantics, and resume rules"    |
+| 环境          | `https://platform.claude.com/docs/en/managed-agents/environments.md`             | "Extract environment config (cloud/networking), management endpoints, and reuse model"          |
+| 事件与流式传输  | `https://platform.claude.com/docs/en/managed-agents/events-and-streaming.md`     | "Extract event stream types, stream-first ordering, reconnect/dedupe, and steering patterns"    |
+| 工具                 | `https://platform.claude.com/docs/en/managed-agents/tools.md`                    | "Extract built-in toolset, custom tool definitions, and tool result wire format"                |
+| 文件                 | `https://platform.claude.com/docs/en/managed-agents/files.md`                    | "Extract file upload, mount paths, session resources, and listing/downloading session outputs"  |
+| 权限策略   | `https://platform.claude.com/docs/en/managed-agents/permission-policies.md`      | "Extract permission policy types (allow/deny/confirm) and per-tool config"                     |
+| 多代理           | `https://platform.claude.com/docs/en/managed-agents/multi-agent.md`              | "Extract multi-agent composition patterns, sub-agent invocation, and result handoff"            |
+| 可观测性         | `https://platform.claude.com/docs/en/managed-agents/observability.md`            | "Extract logging, tracing, and usage telemetry exposed by managed agents"                       |
+| GitHub                | `https://platform.claude.com/docs/en/managed-agents/github.md`                   | "Extract github_repository resource shape, multi-repo mounting, and token rotation"             |
+| MCP 连接器         | `https://platform.claude.com/docs/en/managed-agents/mcp-connector.md`            | "Extract MCP server declaration on agents and vault-based credential injection at session"     |
+| 密钥库                | `https://platform.claude.com/docs/en/managed-agents/vaults.md`                   | "Extract vault create, credential add/rotate, OAuth refresh shape, and archive"                 |
+| 技能                | `https://platform.claude.com/docs/en/managed-agents/skills.md`                   | "Extract skill packaging and loading model for managed agents"                                  |
+| 记忆                | `https://platform.claude.com/docs/en/managed-agents/memory.md`                   | "Extract memory resource shape, scoping, and lifecycle"                                         |
+| 入门引导            | `https://platform.claude.com/docs/en/managed-agents/onboarding.md`               | "Extract first-run setup, prerequisites, and account/region requirements"                      |
+| 云容器      | `https://platform.claude.com/docs/en/managed-agents/cloud-containers.md`         | "Extract cloud container runtime, image config, and network/storage knobs"                     |
+| 迁移             | `https://platform.claude.com/docs/en/managed-agents/migration.md`                | "Extract migration paths from earlier APIs/preview shapes to GA managed agents"                 |
+
+### Anthropic CLI
+
+`ant` CLI 提供对 Claude API 的终端访问。每个 API 资源都作为子命令公开。它是从版本控制的 YAML 创建代理、环境、会话和其他资源，以及交互式检查响应的便捷方式。
+
+| 主题         | URL                                                     | 提取提示                                                                                  |
+| ------------- | ------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Anthropic CLI | `https://platform.claude.com/docs/en/api/sdks/cli.md`   | "Extract CLI install, authentication, command structure, and the beta:agents/environments/sessions commands" |
+
 ---
 
 ## Claude API SDK 仓库
 
-| SDK        | URL                                                       | 描述                    |
-| ---------- | --------------------------------------------------------- | ------------------------------ |
-| Python     | `https://github.com/anthropics/anthropic-sdk-python`     | `anthropic` pip 包源码 |
-| TypeScript | `https://github.com/anthropics/anthropic-sdk-typescript` | `@anthropic-ai/sdk` npm 包源码 |
-| Java       | `https://github.com/anthropics/anthropic-sdk-java`       | `anthropic-java` Maven 包源码  |
-| Go         | `https://github.com/anthropics/anthropic-sdk-go`         | Go 模块源码               |
-| Ruby       | `https://github.com/anthropics/anthropic-sdk-ruby`       | `anthropic` gem 源码         |
-| C#         | `https://github.com/anthropics/anthropic-sdk-csharp`     | NuGet 包源码           |
-| PHP        | `https://github.com/anthropics/anthropic-sdk-php`        | Composer 包源码        |
+当某个绑定（类、方法、命名空间、字段）未在缓存的 `{lang}/` 技能文件或上述托管代理文档中覆盖时，使用 WebFetch 获取这些仓库。SDK 包含对 `/v1/agents`、`/v1/sessions`、`/v1/environments` 及相关资源的 beta 托管代理支持——在仓库中搜索 `BetaManagedAgents`、`beta.agents`、`beta.sessions` 或该语言的等效命名空间。
 
----
-
-## 代理 SDK 文档 URL
-
-### 核心文档
-
-| 主题                | URL                                                         | 提取提示                                               |
-| -------------------- | ----------------------------------------------------------- | --------------------------------------------------------------- |
-| 代理 SDK 概览   | `https://platform.claude.com/docs/en/agent-sdk.md`          | "Extract the Agent SDK overview, key features, and use cases"   |
-| 代理 SDK Python     | `https://github.com/anthropics/claude-agent-sdk-python`     | "Extract Python SDK installation, imports, and basic usage"     |
-| 代理 SDK TypeScript | `https://github.com/anthropics/claude-agent-sdk-typescript` | "Extract TypeScript SDK installation, imports, and basic usage" |
-
-### SDK 参考（GitHub README）
-
-| 主题          | URL                                                                                       | 提取提示                                                            |
-| -------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| Python SDK     | `https://raw.githubusercontent.com/anthropics/claude-agent-sdk-python/main/README.md`     | "Extract Python SDK API reference, classes, and methods"     |
-| TypeScript SDK | `https://raw.githubusercontent.com/anthropics/claude-agent-sdk-typescript/main/README.md` | "Extract TypeScript SDK API reference, types, and functions" |
-
-### npm/PyPI 包
-
-| 包                             | URL                                                            | 描述               |
-| ----------------------------------- | -------------------------------------------------------------- | ------------------------- |
-| claude-agent-sdk (Python)           | `https://pypi.org/project/claude-agent-sdk/`                   | PyPI 上的 Python 包    |
-| @anthropic-ai/claude-agent-sdk (TS) | `https://www.npmjs.com/package/@anthropic-ai/claude-agent-sdk` | npm 上的 TypeScript 包 |
-
-### GitHub 仓库
-
-| 资源       | URL                                                         | 描述                         |
-| -------------- | ----------------------------------------------------------- | ----------------------------------- |
-| Python SDK     | `https://github.com/anthropics/claude-agent-sdk-python`     | Python 包源码               |
-| TypeScript SDK | `https://github.com/anthropics/claude-agent-sdk-typescript` | TypeScript/Node.js 包源码   |
-| MCP 服务器    | `https://github.com/modelcontextprotocol`                   | 官方 MCP 服务器实现 |
+| SDK        | URL                                                      | 提取提示                                                                                                       |
+| ---------- | -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Python     | `https://github.com/anthropics/anthropic-sdk-python`     | "Extract beta managed-agents namespaces, classes, and method signatures (`client.beta.agents`, `client.beta.sessions`)" |
+| TypeScript | `https://github.com/anthropics/anthropic-sdk-typescript` | "Extract beta managed-agents namespaces, classes, and method signatures (`client.beta.agents`, `client.beta.sessions`)" |
+| Java       | `https://github.com/anthropics/anthropic-sdk-java`       | "Extract beta managed-agents classes, builders, and method signatures (`client.beta().agents()`, `BetaManagedAgents*`)" |
+| Go         | `https://github.com/anthropics/anthropic-sdk-go`         | "Extract beta managed-agents types and method signatures (`client.Beta.Agents`, `BetaManagedAgents*` event types)"      |
+| Ruby       | `https://github.com/anthropics/anthropic-sdk-ruby`       | "Extract beta managed-agents methods and parameter shapes (`client.beta.agents`, `client.beta.sessions`)"               |
+| C#         | `https://github.com/anthropics/anthropic-sdk-csharp`     | "Extract beta managed-agents classes and method signatures (NuGet package, `BetaManagedAgents*` types)"                 |
+| PHP        | `https://github.com/anthropics/anthropic-sdk-php`        | "Extract beta managed-agents classes and method signatures (`$client->beta->agents`, `BetaManagedAgents*` params)"      |
 
 ---
 

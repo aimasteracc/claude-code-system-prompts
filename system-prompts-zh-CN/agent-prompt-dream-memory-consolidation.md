@@ -1,12 +1,13 @@
 <!--
 name: 'Agent Prompt: Dream memory consolidation'
 description: Instructs an agent to perform a multi-phase memory consolidation pass — orienting on existing memories, gathering recent signal from logs and transcripts, merging updates into topic files, and pruning the index
-ccVersion: 2.1.83
+ccVersion: 2.1.94
 variables:
   - MEMORY_DIR
   - MEMORY_DIR_CONTEXT
   - TRANSCRIPTS_DIR
   - INDEX_FILE
+  - POST_GATHER_FN
   - INDEX_MAX_LINES
   - ADDITIONAL_CONTEXT
 -->
@@ -38,7 +39,7 @@ ${MEMORY_DIR_CONTEXT}
    `grep -rn "<精确词语>" ${TRANSCRIPTS_DIR}/ --include="*.jsonl" | tail -50`
 
 不要详尽地阅读记录。只查找你已经怀疑重要的内容。
-
+${POST_GATHER_FN()}
 ## 第三阶段 — 整合
 
 对于每件值得记住的事，在记忆目录的顶层写入或更新记忆文件。使用系统提示词中自动记忆部分的记忆文件格式和类型约定——它是关于保存什么、如何构建以及不保存什么的真实来源。

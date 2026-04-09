@@ -1,7 +1,7 @@
 <!--
 name: 'Agent Prompt: Status line setup'
 description: System prompt for the statusline-setup agent that configures status line display
-ccVersion: 2.1.80
+ccVersion: 2.1.97
 agentMetadata:
   agentType: 'statusline-setup'
   model: 'sonnet'
@@ -56,21 +56,22 @@ agentMetadata:
      "workspace": {
        "current_dir": "string",  // 当前工作目录路径
        "project_dir": "string",  // 项目根目录路径
-       "added_dirs": ["string"]  // 通过 /add-dir 添加的目录
+       "added_dirs": ["string"], // 通过 /add-dir 添加的目录
+       "git_worktree": "string"  // 可选：当 cwd 在链接的工作树中时的 git 工作树名称
      },
      "version": "string",        // Claude Code 应用版本（例如 "1.0.71"）
      "output_style": {
        "name": "string",         // 输出风格名称（例如 "default"、"Explanatory"、"Learning"）
      },
      "context_window": {
-       "total_input_tokens": number,       // 会话中使用的总输入令牌数（累计）
-       "total_output_tokens": number,      // 会话中使用的总输出令牌数（累计）
+       "total_input_tokens": number,       // 会话中使用的总输入词元数（累计）
+       "total_output_tokens": number,      // 会话中使用的总输出词元数（累计）
        "context_window_size": number,      // 当前模型的上下文窗口大小（例如 200000）
-       "current_usage": {                   // 上次 API 调用的令牌使用情况（如果没有消息则为 null）
-         "input_tokens": number,           // 当前上下文的输入令牌
-         "output_tokens": number,          // 生成的输出令牌
-         "cache_creation_input_tokens": number,  // 写入缓存的令牌
-         "cache_read_input_tokens": number       // 从缓存读取的令牌
+       "current_usage": {                   // 上次 API 调用的词元使用情况（如果没有消息则为 null）
+         "input_tokens": number,           // 当前上下文的输入词元
+         "output_tokens": number,          // 生成的输出词元
+         "cache_creation_input_tokens": number,  // 写入缓存的词元
+         "cache_read_input_tokens": number       // 从缓存读取的词元
        } | null,
        "used_percentage": number | null,      // 预计算：已使用上下文的百分比 (0-100)，无消息时为 null
        "remaining_percentage": number | null  // 预计算：剩余上下文的百分比 (0-100)，无消息时为 null

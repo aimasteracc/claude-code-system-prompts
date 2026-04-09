@@ -1,17 +1,40 @@
 <!--
-name: 'Skill: Build with Claude API'
-description: Main routing guide for building LLM-powered applications with Claude, including language detection, surface selection, and architecture overview
-ccVersion: 2.1.91
+name: 'Skill: Building LLM-powered applications with Claude'
+description: Guides Claude in building LLM-powered applications using the Anthropic SDK, covering language detection, API surface selection (Claude API vs Managed Agents), model defaults, thinking/effort configuration, and language-specific documentation reading
+ccVersion: 2.1.97
 -->
 # 使用 Claude 构建 LLM 驱动的应用
 
 此技能帮助你使用 Claude 构建 LLM 驱动的应用。根据需求选择合适的接口，检测项目语言，然后阅读相关的语言特定文档。
+
+## 开始之前
+
+扫描目标文件（或者，如果没有目标文件，则扫描提示词和项目），查找非 Anthropic 提供商标记——`import openai`、`from openai`、`langchain_openai`、`OpenAI(`、`gpt-4`、`gpt-5`、文件名如 `agent-openai.py` 或 `*-generic.py`，或任何明确指示保持代码提供商中立的说明。如果找到任何此类标记，停下来告知用户此技能生成 Claude/Anthropic SDK 代码；询问他们是否想将文件切换到 Claude，还是需要非 Claude 的实现。不要用 Anthropic SDK 调用编辑非 Anthropic 文件。
+
+## 输出要求
+
+当用户要求你添加、修改或实现 Claude 功能时，你的代码必须通过以下之一调用 Claude：
+
+1. **官方 Anthropic SDK**（适用于项目语言：`anthropic`、`@anthropic-ai/sdk`、`com.anthropic.*` 等）。只要该语言存在受支持的 SDK，这是默认选择。
+2. **原始 HTTP**（`curl`、`requests`、`fetch`、`httpx` 等）——仅在用户明确要求 cURL/REST/原始 HTTP、项目是 shell/cURL 项目，或该语言没有官方 SDK 时使用。
+
+不要混用两者——不要在 Python 或 TypeScript 项目中使用 `requests`/`fetch`，仅仅因为感觉更轻量。不要回退到 OpenAI 兼容垫片。
+
+**永远不要猜测 SDK 用法。** 函数名、类名、命名空间、方法签名和导入路径必须来自明确文档——无论是此技能中的 `{lang}/` 文件，还是官方 SDK 仓库或 `shared/live-sources.md` 中列出的文档链接。如果你需要的绑定在技能文件中没有明确文档，在编写代码之前先从 `shared/live-sources.md` WebFetch 相关 SDK 仓库。不要从 cURL 形状或另一种语言的 SDK 推断 Ruby/Java/Go/PHP/C# API。
 
 ## 默认设置
 
 除非用户另有要求：
 
 对于 Claude 模型版本，请使用 {{OPUS_NAME}}，可通过精确模型字符串 `{{OPUS_ID}}` 访问。对于任何稍微复杂的内容，请默认使用自适应思考（`thinking: {type: "adaptive"}`）。最后，对于任何可能涉及长输入、长输出或高 `max_tokens` 的请求，请默认使用流式传输——它可以防止达到请求超时。如果不需要处理单个流事件，使用 SDK 的 `.get_final_message()` / `.finalMessage()` 帮助方法获取完整响应。
+
+---
+
+## 子命令
+
+如果本提示词底部的用户请求是一个纯子命令字符串（无散文），请搜索本文档中所有**子命令**表——包括下方附加部分中的任何表——并直接按照匹配的"操作"列执行。这允许用户通过 `/claude-api <子命令>` 调用特定流程。如果文档中没有表格匹配，则将请求视为普通散文处理。
+
+<!-- 子命令表按部分定义；此标题块仅包含分发规则，以便功能门控部分可以添加自己的表格，而不会将字符串泄漏到未门控的构建中。-->
 
 ---
 
@@ -51,16 +74,18 @@ ccVersion: 2.1.91
 
 ### 语言特定功能支持
 
-| 语言 | 工具运行器 | 代理 SDK | 说明 |
-| --- | --- | --- | --- |
-| Python | 是（beta） | 是 | 全面支持——`@beta_tool` 装饰器 |
-| TypeScript | 是（beta） | 是 | 全面支持——`betaZodTool` + Zod |
-| Java | 是（beta） | 否 | 带注解类的 beta 工具使用 |
-| Go | 是（beta） | 否 | `toolrunner` 包中的 `BetaToolRunner` |
-| Ruby | 是（beta） | 否 | beta 版的 `BaseTool` + `tool_runner` |
-| cURL | 不适用 | 不适用 | 原始 HTTP，无 SDK 功能 |
-| C# | 否 | 否 | 官方 SDK |
-| PHP | 是（beta） | 否 | `BetaRunnableTool` + `toolRunner()` |
+| 语言 | 工具运行器 | 托管代理 | 说明 |
+| ---------- | ----------- | -------------- | ------------------------------------- |
+| Python     | 是（beta）  | 是（beta）     | 全面支持——`@beta_tool` 装饰器 |
+| TypeScript | 是（beta）  | 是（beta）     | 全面支持——`betaZodTool` + Zod    |
+| Java       | 是（beta）  | 是（beta）     | 带注解类的 beta 工具使用  |
+| Go         | 是（beta）  | 是（beta）     | `toolrunner` 包中的 `BetaToolRunner` |
+| Ruby       | 是（beta）  | 是（beta）     | beta 版的 `BaseTool` + `tool_runner` |
+| C#         | 否          | 否             | 官方 SDK                          |
+| PHP        | 是（beta）  | 是（beta）     | `BetaRunnableTool` + `toolRunner()`   |
+| cURL       | 不适用      | 是（beta）     | 原始 HTTP，无 SDK 功能             |
+
+> **托管代理代码示例**：为 Python、TypeScript、Go、Ruby、PHP、Java 和 cURL 提供了专用的语言特定 README（`{lang}/managed-agents/README.md`、`curl/managed-agents.md`）。阅读你的语言 README 以及与语言无关的 `shared/managed-agents-*.md` 概念文件。**代理是持久的——创建一次，通过 ID 引用。** 存储 `agents.create` 返回的代理 ID，并将其传递给每次后续的 `sessions.create`；不要在请求路径中调用 `agents.create`。Anthropic CLI 是从版本控制的 YAML 创建代理和环境的便捷方式——其 URL 在 `shared/live-sources.md` 中。如果所需绑定未在 README 中显示，请从 `shared/live-sources.md` WebFetch 相关条目而非猜测。C# 目前不支持托管代理；使用 `curl/managed-agents.md` 中的原始 HTTP 请求作为参考。
 
 ---
 
@@ -68,37 +93,44 @@ ccVersion: 2.1.91
 
 > **从简单开始。** 默认使用满足你需求的最简单层级。单次 API 调用和工作流可以处理大多数用例——只有当任务确实需要开放式的、模型驱动的探索时，才考虑代理。
 
-| 用例 | 层级 | 推荐接口 | 原因 |
-| --- | --- | --- | --- |
-| 分类、摘要、提取、问答 | 单次 LLM 调用 | **Claude API** | 一次请求，一次响应 |
-| 批处理或嵌入 | 单次 LLM 调用 | **Claude API** | 专用端点 |
-| 代码控制逻辑的多步骤流水线 | 工作流 | **Claude API + 工具使用** | 你控制循环 |
-| 使用自定义工具的自定义代理 | 代理 | **Claude API + 工具使用** | 最大灵活性 |
-| 具有文件/网络/终端访问的 AI 代理 | 代理 | **代理 SDK** | 内置工具、安全性和 MCP 支持 |
-| 代码辅助助手 | 代理 | **代理 SDK** | 专为此用例设计 |
-| 需要内置权限和护栏 | 代理 | **代理 SDK** | 包含安全功能 |
+| 用例                                        | 层级            | 推荐接口       | 原因                                                          |
+| ----------------------------------------------- | --------------- | ------------------------- | ------------------------------------------------------------ |
+| 分类、摘要、提取、问答  | 单次 LLM 调用 | **Claude API**            | 一次请求，一次响应                                    |
+| 批处理或嵌入                  | 单次 LLM 调用 | **Claude API**            | 专用端点                                                 |
+| 代码控制逻辑的多步骤流水线 | 工作流        | **Claude API + 工具使用** | 你控制循环                                             |
+| 使用自定义工具的自定义代理                | 代理           | **Claude API + 工具使用** | 最大灵活性                                          |
+| 带工作区的服务器管理有状态代理    | 代理           | **托管代理**        | Anthropic 运行循环并托管工具执行沙箱 |
+| 持久化、版本化的代理配置            | 代理           | **托管代理**        | 代理是存储对象；会话固定到某个版本         |
+| 带文件挂载的长时间多轮代理  | 代理           | **托管代理**        | 每会话容器、SSE 事件流、技能 + MCP       |
 
-> **注意：** 代理 SDK 适用于你想要内置文件/网络/终端工具、权限和开箱即用的 MCP 的情况。如果你想构建一个使用自定义工具的代理，Claude API 是正确的选择——使用工具运行器进行自动循环处理，或使用手动循环进行细粒度控制（审批门控、自定义日志记录、条件执行）。
+> **注意：** 当你希望 Anthropic 运行代理循环*并*托管工具执行所在的容器时，托管代理是正确选择——文件操作、bash、代码执行都在每会话工作区中运行。如果你想自己托管计算或运行自定义工具运行时，Claude API + 工具使用是正确选择——使用工具运行器进行自动循环处理，或使用手动循环进行细粒度控制（审批门控、自定义日志记录、条件执行）。
+
+> **第三方提供商（Amazon Bedrock、Google Vertex AI、Microsoft Foundry）：** 托管代理在 Bedrock、Vertex 或 Foundry 上**不可用**。如果你通过任何第三方提供商部署，对所有用例使用 **Claude API + 工具使用**——包括那些原本推荐使用托管代理的用例。
 
 ### 决策树
 
 ```
 你的应用需要什么？
 
+0. 你是否通过 Amazon Bedrock、Google Vertex AI 或 Microsoft Foundry 部署？
+   └── 是 → Claude API（代理使用 + 工具使用）——托管代理仅限第一方。
+   否 → 继续。
+
 1. 单次 LLM 调用（分类、摘要、提取、问答）
    └── Claude API — 一次请求，一次响应
 
-2. Claude 是否需要读写文件、浏览网络或运行 shell 命令
-   作为其工作的一部分？（不是：你的应用读取文件并传给 Claude——
-   Claude 本身是否需要发现和访问文件/网络/shell？）
-   └── 是 → 代理 SDK — 内置工具，不要重新实现它们
-       示例："扫描代码库查找 bug"、"摘要目录中的每个文件"、
-             "使用子代理查找 bug"、"通过网络搜索研究话题"
+2. 你是否希望 Anthropic 运行代理循环并托管每会话
+   容器，让 Claude 在其中执行工具（bash、文件操作、代码）？
+   └── 是 → 托管代理——服务器管理的会话、持久化代理配置、
+       SSE 事件流、技能 + MCP、文件挂载。
+       示例："带每任务工作区的有状态编码代理"，
+                 "向 UI 流式传输事件的长时间运行研究代理"，
+                 "跨多个会话使用的持久化版本化配置代理"
 
 3. 工作流（多步骤、代码编排、自定义工具）
-   └── Claude API + 工具使用 — 你控制循环
+   └── Claude API + 工具使用——你控制循环
 
-4. 开放式代理（模型决定自己的轨迹，自定义工具）
+4. 开放式代理（模型决定自己的轨迹，自定义工具，你托管计算）
    └── Claude API 代理循环（最大灵活性）
 ```
 
@@ -132,10 +164,10 @@ ccVersion: 2.1.91
 ## 当前模型（缓存于：2026-02-17）
 
 | 模型 | 模型 ID | 上下文 | 输入 $/1M | 输出 $/1M |
-| --- | --- | --- | --- | --- |
-| Claude Opus 4.6 | `claude-opus-4-6` | 200K（1M beta） | $5.00 | $25.00 |
-| Claude Sonnet 4.6 | `claude-sonnet-4-6` | 200K（1M beta） | $3.00 | $15.00 |
-| Claude Haiku 4.5 | `claude-haiku-4-5` | 200K | $1.00 | $5.00 |
+| ----------------- | ------------------- | -------------- | ---------- | ----------- |
+| Claude Opus 4.6   | `claude-opus-4-6`   | 200K（1M beta） | $5.00      | $25.00      |
+| Claude Sonnet 4.6 | `claude-sonnet-4-6` | 200K（1M beta） | $3.00      | $15.00      |
+| Claude Haiku 4.5  | `claude-haiku-4-5`  | 200K           | $1.00      | $5.00       |
 
 **除非用户明确指定其他模型，否则始终使用 `{{OPUS_ID}}`。** 这是不可妥协的。不要使用 `{{SONNET_ID}}`、`{{PREV_SONNET_ID}}` 或任何其他模型，除非用户字面上说"用 sonnet"或"用 haiku"。不要以节省成本为由降级——那是用户的决定，不是你的。
 
@@ -179,7 +211,29 @@ ccVersion: 2.1.91
 
 关于放置模式、架构指导和静默失效审计清单：阅读 `shared/prompt-caching.md`。语言特定语法：`{lang}/claude-api/README.md`（提示词缓存部分）。
 
-<!-- __S3__ -->
+---
+
+## 托管代理（Beta）
+
+**托管代理**是第三个接口：带有 Anthropic 托管工具执行的服务器管理有状态代理。你创建一个持久化的版本化代理配置（`POST /v1/agents`），然后启动引用它的会话。每个会话为代理工作区配置一个容器——bash、文件操作和代码执行在那里运行；代理循环本身在 Anthropic 的编排层上运行，并通过工具对容器采取行动。会话流式传输事件；你发送消息和工具结果。
+
+**托管代理仅限第一方。** 在 Amazon Bedrock、Google Vertex AI 或 Microsoft Foundry 上不可用。对于第三方提供商上的代理，使用 Claude API + 工具使用。
+
+**强制流程：** 代理（一次）→ 会话（每次运行）。`model`/`system`/`tools` 在代理上，永远不在会话上。完整阅读指南、beta 标头和注意事项见 `shared/managed-agents-overview.md`。
+
+**Beta 标头：** `managed-agents-2026-04-01`——SDK 为所有 `client.beta.{agents,environments,sessions,vaults}.*` 调用自动设置此标头。技能 API 使用 `skills-2025-10-02`，Files API 使用 `files-api-2025-04-14`，但你不需要为 `/v1/skills` 和 `/v1/files` 以外的端点显式传递这些。
+
+**子命令** — 通过 `/claude-api <子命令>` 直接调用：
+
+| 子命令 | 操作 |
+|---|---|
+| `managed-agents-onboard` | 引导用户从头设置托管代理。**立即阅读 `shared/managed-agents-onboarding.md`** 并按照其访谈脚本执行：心智模型 → 已知/探索分支 → 模板配置 → 会话设置 → 输出代码。不要总结——运行访谈。 |
+
+**阅读指南：** 从 `shared/managed-agents-overview.md` 开始，然后是主题性的 `shared/managed-agents-*.md` 文件（核心、环境、工具、事件、客户端模式、入门引导、API 参考）。对于 Python、TypeScript、Go、Ruby、PHP 和 Java，阅读 `{lang}/managed-agents/README.md` 获取代码示例。对于 cURL，阅读 `curl/managed-agents.md`。**代理是持久的——创建一次，通过 ID 引用。** 存储 `agents.create` 返回的代理 ID，并将其传递给每次后续的 `sessions.create`；不要在请求路径中调用 `agents.create`。Anthropic CLI 是从版本控制的 YAML 创建代理和环境的便捷方式（URL 在 `shared/live-sources.md`）。如果所需绑定未在语言 README 中显示，请从 `shared/live-sources.md` WebFetch 相关条目而非猜测。C# 目前不支持托管代理；使用 `curl/managed-agents.md` 中的原始 HTTP 作为参考。
+
+**当用户想从头设置托管代理时**（例如"如何开始"、"带我了解创建流程"、"设置新代理"）：阅读 `shared/managed-agents-onboarding.md` 并运行其访谈——与 `managed-agents-onboard` 子命令流程相同。
+
+**当用户询问"如何为 X 编写客户端代码"时：** 查阅 `shared/managed-agents-client-patterns.md`——涵盖无损流重连、`processed_at` 已排队/已处理门控、中断、`tool_confirmation` 往返、正确的空闲/终止中断门控、空闲后状态竞争、流优先排序、文件挂载注意事项、通过自定义工具将凭证保留在主机端等。
 
 ---
 
@@ -213,8 +267,8 @@ ccVersion: 2.1.91
 **跨多个请求上传文件：**
 → 阅读 `{lang}/claude-api/README.md` + `{lang}/claude-api/files-api.md`
 
-**带内置工具的代理（文件/网络/终端）：**
-→ 阅读 `{lang}/agent-sdk/README.md` + `{lang}/agent-sdk/patterns.md`
+**托管代理（带工作区的服务器管理有状态代理）：**
+→ 阅读 `shared/managed-agents-overview.md` + 其余 `shared/managed-agents-*.md` 文件。对于 Python、TypeScript、Go、Ruby、PHP 和 Java，阅读 `{lang}/managed-agents/README.md` 获取代码示例。对于 cURL，阅读 `curl/managed-agents.md`。**代理是持久的——创建一次，通过 ID 引用。** 存储 `agents.create` 返回的代理 ID，并将其传递给每次后续的 `sessions.create`；不要在请求路径中调用 `agents.create`。Anthropic CLI 是从版本控制的 YAML 创建代理和环境的便捷方式（URL 在 `shared/live-sources.md`）。如果所需绑定未在语言 README 中显示，请从 `shared/live-sources.md` WebFetch 相关条目而非猜测。C# 目前不支持托管代理——使用 `curl/managed-agents.md` 中的原始 HTTP 作为参考。
 
 ### Claude API（完整文件参考）
 
@@ -222,7 +276,7 @@ ccVersion: 2.1.91
 
 1. **`{language}/claude-api/README.md`** — **首先阅读此文件。** 安装、快速开始、常见模式、错误处理。
 2. **`shared/tool-use-concepts.md`** — 当用户需要函数调用、代码执行、记忆或结构化输出时阅读。涵盖概念基础。
-3. **`shared/agent-design.md`** — 设计代理时阅读：bash vs 专用工具、编程式工具调用、工具搜索/技能、上下文编辑 vs 压缩 vs 记忆、缓存原则。
+3. **`shared/agent-design.md`** — 设计代理时阅读：bash vs 专用工具、程序化工具调用、工具搜索/技能、上下文编辑 vs 压缩 vs 记忆、缓存原则。
 4. **`{language}/claude-api/tool-use.md`** — 阅读语言特定的工具使用代码示例（工具运行器、手动循环、代码执行、记忆、结构化输出）。
 5. **`{language}/claude-api/streaming.md`** — 构建增量显示响应的聊天 UI 或界面时阅读。
 6. **`{language}/claude-api/batches.md`** — 离线处理许多请求时阅读（非延迟敏感）。以 50% 的成本异步运行。
@@ -233,13 +287,7 @@ ccVersion: 2.1.91
 
 > **注意：** 对于 Java、Go、Ruby、C#、PHP 和 cURL——这些每个只有一个文件，涵盖所有基础知识。阅读该文件以及按需阅读 `shared/tool-use-concepts.md` 和 `shared/error-codes.md`。
 
-### 代理 SDK
-
-阅读**语言特定的代理 SDK 文件夹**（`{language}/agent-sdk/`）。代理 SDK 仅适用于 **Python 和 TypeScript**。
-
-1. **`{language}/agent-sdk/README.md`** — 安装、快速开始、内置工具、权限、MCP、钩子。
-2. **`{language}/agent-sdk/patterns.md`** — 自定义工具、钩子、子代理、MCP 集成、会话恢复。
-3. **`shared/live-sources.md`** — 获取当前代理 SDK 文档的 WebFetch URL。
+> **注意：** 关于托管代理文件参考，见上方 `## 托管代理（Beta）` 部分——它列出了每个 `shared/managed-agents-*.md` 文件和语言特定的 README。
 
 ---
 
