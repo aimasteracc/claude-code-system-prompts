@@ -4,6 +4,55 @@ Note: Only use **NEW:** for entirely new prompt files, NOT for new additions/sec
 
 ### Claude Code System Prompts Changelog
 
+# [2.1.104](https://github.com/Piebald-AI/claude-code-system-prompts/commit/7015f84)
+
+_+8 tokens_
+
+- System Prompt: Communication style — Renamed section heading from "Communication style" to "Text output (does not apply to tool calls)" to clarify that the guidelines apply only to text output, not tool calls.
+
+# [2.1.101](https://github.com/Piebald-AI/claude-code-system-prompts/commit/eb92596)
+
+_+4,676 tokens_
+
+- **NEW:** System Prompt: Autonomous loop check — Added behavior for autonomous timer-based invocations, guiding Claude to continue established work, maintain PRs, and handle repeated idle checks while the user is away.
+- **NEW:** System Reminder: Loop wakeup not scheduled — Added instructions for handling a /loop dynamic mode wakeup that was not scheduled, including when to re-issue with the prompt field set.
+- **NEW:** Tool Description: ScheduleWakeup (/loop dynamic mode) — Added description for scheduling the next iteration in /loop dynamic (self-paced) mode, including sentinel handling for autonomous loops.
+- **NEW:** Tool Description: Snooze (delay and reason guidance) — Added guidance on choosing snooze delay relative to the 5-minute prompt cache TTL and writing informative reason fields.
+- **NEW:** Skill: /insights report output — Added formatting and display instructions for insights usage report results after the user runs the /insights slash command.
+- **NEW:** Skill: /loop cloud-first scheduling offer — Added a decision tree for offering cloud-based scheduling before falling back to local session loops in the /loop command.
+- **NEW:** Skill: /loop self-pacing mode — Added instructions for self-pacing a recurring loop by arming event monitors as primary wake signals and scheduling fallback heartbeat delays between iterations.
+- **NEW:** Skill: /loop slash command (dynamic mode) — Added parsing logic for scheduling recurring or dynamically self-paced loop executions.
+- **NEW:** Skill: Dynamic pacing loop execution — Added step-by-step instructions for executing a dynamic pacing loop that runs tasks, arms persistent monitors for event-gated waits, schedules fallback heartbeat ticks, and handles task notifications.
+- **NEW:** Skill: Schedule recurring cron and execute immediately (compact) — Added compact instructions for creating a recurring cron job, confirming the schedule, and immediately executing the parsed prompt.
+- **NEW:** Skill: Schedule recurring cron and run immediately — Added instructions to convert an interval to a cron expression, schedule a recurring task, confirm to the user, and immediately execute without waiting for the first cron fire.
+- Skill: Build Claude API and SDK apps — Expanded trigger rules to include debugging, optimizing, and improving Claude features; added prompt caching as a default for apps built with this skill; added trigger for prompt caching and cache hit rate questions in any Anthropic SDK project.
+- Skill: /loop slash command — Added extension points for additional parsing notes and additional confirmation info; minor restructuring of parsing and confirmation steps.
+- System Prompt: Fork usage guidelines — Relaxed the "don't peek" rule: removed the exception allowing users to explicitly request a progress check; now unconditionally prohibits reading or tailing fork output files.
+
+# [2.1.100](https://github.com/Piebald-AI/claude-code-system-prompts/commit/0e00200)
+
+_-845 tokens_
+
+- **REMOVED:** System Prompt: Exploratory questions — analyze before implementing — Removed instructions for Claude to respond to open-ended questions with analysis, options, and tradeoffs instead of jumping to implementation.
+- **REMOVED:** System Prompt: Output efficiency — Removed instructions for concise and direct text output, leading with answers over reasoning and limiting responses to essential information.
+- **REMOVED:** System Prompt: User-facing communication style — Removed detailed guidelines for writing clear, concise, and readable user-facing text including prose style, update cadence, formatting rules, and audience-aware explanations.
+- System Prompt: Communication style — Tightened end-of-turn summary guidance from describing the format to a stricter "one or two sentences. What changed and what's next. Nothing else."
+
+# [2.1.98](https://github.com/Piebald-AI/claude-code-system-prompts/commit/a23620e)
+
+_+2,045 tokens_
+
+- **NEW:** System Prompt: Communication style — Added guidelines for giving brief user-facing updates at key moments during tool use, writing concise end-of-turn summaries, matching response format to task complexity, and avoiding comments and planning documents in code.
+- **NEW:** System Prompt: Dream team memory handling — Added instructions for handling shared team memories during dream consolidation, including deduplication, conservative pruning rules, and avoiding accidental promotion of personal memories.
+- **NEW:** System Prompt: Exploratory questions — analyze before implementing — Added instructions for Claude to respond to open-ended questions with analysis, options, and tradeoffs instead of jumping to implementation, waiting for user agreement before writing code.
+- **NEW:** System Prompt: User-facing communication style — Added detailed guidelines for writing clear, concise, and readable user-facing text including prose style, update cadence, formatting rules, and audience-aware explanations.
+- **NEW:** Tool Description: Background monitor (streaming events) — Added description for a background monitor tool that streams stdout events from long-running scripts as chat notifications, with guidelines on script quality, output volume, and selective filtering.
+- Agent Prompt: Dream memory consolidation — Added support for an optional transcript source note displayed after the transcripts directory path.
+- Agent Prompt: Dream memory pruning — Added conservative pruning rules for `team/` subdirectory memories: only delete when clearly contradicted or superseded by a newer team memory, never delete just because unrecognized or irrelevant to recent sessions, and never move personal memories into `team/`.
+- Skill: /dream nightly schedule — Minor refactor to include memory directory reference in the consolidation configuration.
+- System Prompt: Advisor tool instructions — Minor wording updates: clarified tool invocation syntax, broadened 'before writing code' to 'before writing,' and updated several examples and descriptions for generality (e.g., 'reading code' → 'fetching a source,' 'the code does Y' → 'the paper states Y').
+
+
 # [2.1.97](https://github.com/Piebald-AI/claude-code-system-prompts/commit/38cf6fe)
 
 _+23,865 tokens_
